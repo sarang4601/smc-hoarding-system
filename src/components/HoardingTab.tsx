@@ -152,10 +152,7 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
       setFormError("એજન્સી પસંદ કરવી ફરજિયાત છે. (Agency selection is required)");
       return;
     }
-    if (!tpNumber.trim()) {
-      setFormError("ટી.પી. નંબર જરૂરી છે. (TP Number is required)");
-      return;
-    }
+    
     if (!finalPlotNo.trim()) {
       setFormError("ફાઇનલ પ્લોટ નંબર / આર.એસ. નંબર જરૂરી છે. (Final Plot No is required)");
       return;
@@ -475,18 +472,17 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
                 </label>
                 <input
                   type="text"
-                  required
                   list="tp-scheme-options"
                   value={tpNumber}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    setTpNumber(value);
-                    const match = matchTPScheme(value, tpSchemes);
+                  const value = e.target.value;
+                  setTpNumber(value);
+                  const match = matchTPScheme(value, tpSchemes);
                     setSelectedTPSchemeId(match ? match.id : null);
                   }}
-                  placeholder="TP-18 - ટી.પી. સ્કીમ નં. ૧૮ ..."
-                  className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
-                />
+                    placeholder="TP-18 - ટી.પી. સ્કીમ નં. ૧૮ ..."
+                    className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
+/>
                 <datalist id="tp-scheme-options">
                   {tpSchemes.map((scheme) => (
                     <option
