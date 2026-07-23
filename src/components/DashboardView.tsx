@@ -17,20 +17,20 @@ import { daysUntil, getHoardingExpectedFeesInFY, getHoardingStatusInFY, getFinan
 import { FINANCIAL_YEARS } from "./HoardingTab";
 
 interface DashboardViewProps {
-  agencies: Agency[];
-  hoardings: Hoarding[];
-  quarterlyPayments: QuarterlyPayment[];
-  stabilityCertificates: StabilityCertificate[];
-  tpSchemes: TPScheme[];
+  agencies?: Agency[];
+  hoardings?: Hoarding[];
+  quarterlyPayments?: QuarterlyPayment[];
+  stabilityCertificates?: StabilityCertificate[];
+  tpSchemes?: TPScheme[];
   onNavigateToTab: (tabIndex: number) => void;
 }
 
 export default function DashboardView({
-  agencies,
-  hoardings,
-  quarterlyPayments,
-  stabilityCertificates,
-  tpSchemes,
+  agencies = [],
+  hoardings = [],
+  quarterlyPayments = [],
+  stabilityCertificates = [],
+  tpSchemes = [],
   onNavigateToTab
 }: DashboardViewProps) {
   
@@ -38,13 +38,13 @@ export default function DashboardView({
 
   // Filter hoardings that are visible during selectedFY (not Hidden)
   const activeHoardingsInFY = useMemo(() => {
-    return hoardings.filter((h) => getHoardingStatusInFY(h, selectedFY) !== "Hidden");
+    return (hoardings || []).filter((h) => getHoardingStatusInFY(h, selectedFY) !== "Hidden");
   }, [hoardings, selectedFY]);
 
   // Filter stability certificates where the hoarding is active in this FY
   const activeCertificatesInFY = useMemo(() => {
-    return stabilityCertificates.filter((c) => {
-      const hoarding = hoardings.find((h) => h.agency_name === c.agency_name && h.hoarding_location === c.hoarding_location);
+    return (stabilityCertificates || []).filter((c) => {
+      const hoarding = (hoardings || []).find((h) => h.agency_name === c.agency_name && h.hoarding_location === c.hoarding_location);
       if (!hoarding) return true; // Show if hoarding matching not found
       return getHoardingStatusInFY(hoarding, selectedFY) !== "Hidden";
     });
@@ -84,7 +84,7 @@ export default function DashboardView({
 
   // Real-time calculation of statistics for selected Financial Year
   const stats = useMemo(() => {
-    const totalAgencies = agencies.length;
+    const totalAgencies = (agencies || []).length;
     
     // activeHoardingsInFY contains all visible hoardings in this FY (not Hidden)
     const activeHoardings = activeHoardingsInFY.filter((h) => getHoardingStatusInFY(h, selectedFY) === "Active");
@@ -98,7 +98,7 @@ export default function DashboardView({
     const totalQuarterlyLicenseFee = activeHoardingsInFY.reduce((sum, h) => sum + getHoardingExpectedFeesInFY(h, selectedFY).quarterly, 0);
     
     // Total Paid Amount belonging to selectedFY (Grand totals of recorded receipts)
-    const paymentsInFY = quarterlyPayments.filter((p) => p.financial_year === selectedFY);
+    const paymentsInFY = (quarterlyPayments || []).filter((p) => p.financial_year === selectedFY);
     const totalPaidAmount = paymentsInFY.reduce((sum, p) => sum + p.grand_total, 0);
     
     // Pending Amount (Expected Annual minus actual license fee paid in selectedFY)
@@ -121,7 +121,7 @@ export default function DashboardView({
   }, [agencies, activeHoardingsInFY, quarterlyPayments, selectedFY, alerts]);
 
   const schemeStats = useMemo(() => {
-    const activeSchemes = tpSchemes.filter((scheme) => !scheme.deleted_at || scheme.deleted_at === "");
+    const activeSchemes = (tpSchemes || []).filter((scheme) => !scheme.deleted_at || scheme.deleted_at === "");
     const schemeTotals = activeSchemes.map((scheme) => {
       const schemeHoardings = activeHoardingsInFY.filter((h) => h.tp_scheme_id === scheme.id);
       return {
@@ -136,7 +136,7 @@ export default function DashboardView({
         .sort((a, b) => b.hoardingCount - a.hoardingCount)
         .slice(0, 3)
     };
-  }, [tpSchemes, activeHoardingsInFY, quarterlyPayments, selectedFY]);
+  }, [tpSchemes, activeHoardingsInFY]);
 
   // Current formatted date and time for government readout
   const todayDateGu = new Date().toLocaleDateString("gu-IN", {
@@ -282,7 +282,7 @@ export default function DashboardView({
             <Building className="h-6 w-6" />
           </div>
         </div>
- 
+
         {/* Active Hoardings */}
         <div 
           onClick={() => onNavigateToTab(2)}
@@ -446,7 +446,7 @@ export default function DashboardView({
           
           <div className="space-y-2 text-xs">
             {FINANCIAL_YEARS.slice(0, 8).map((fy) => {
-              const count = hoardings.filter(h => h.status === "Cancelled" && h.cancellation_financial_year === fy).length;
+              const count = (hoardings || []).filter(h => h.status === "Cancelled" && h.cancellation_financial_year === fy).length;
               return (
                 <div key={fy} className="flex justify-between items-center pb-2 border-b border-slate-100 last:border-0 last:pb-0">
                   <span className="text-slate-500 font-mono font-semibold">{fy}</span>
@@ -466,31 +466,31 @@ export default function DashboardView({
           <div className="space-y-3.5 text-xs">
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <span className="text-slate-500">એજન્સી રેકોર્ડ્સ (Agencies)</span>
-              <span className="font-bold font-mono text-slate-800">{agencies.length}</span>
+              <span className="font-bold font-mono text-slate-800">{(agencies || []).length}</span>
             </div>
             
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <span className="text-slate-500">સક્રિય હોર્ડિંગ્સ (Active Hoardings)</span>
               <span className="font-bold font-mono text-emerald-700">
-                {hoardings.filter(h => getHoardingStatusInFY(h, selectedFY) === "Active").length}
+                {(hoardings || []).filter(h => getHoardingStatusInFY(h, selectedFY) === "Active").length}
               </span>
             </div>
 
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <span className="text-slate-500">રદ થયેલ હોર્ડિંગ્સ (Cancelled Hoardings)</span>
               <span className="font-bold font-mono text-rose-700">
-                {hoardings.filter(h => getHoardingStatusInFY(h, selectedFY) === "Cancelled").length}
+                {(hoardings || []).filter(h => getHoardingStatusInFY(h, selectedFY) === "Cancelled").length}
               </span>
             </div>
 
             <div className="flex justify-between items-center pb-2 border-b border-slate-100">
               <span className="text-slate-500">ભરેલી પેમેન્ટ રસીદો (Receipts)</span>
-              <span className="font-bold font-mono text-slate-800">{quarterlyPayments.length}</span>
+              <span className="font-bold font-mono text-slate-800">{(quarterlyPayments || []).length}</span>
             </div>
 
             <div className="flex justify-between items-center pb-1">
               <span className="text-slate-500">નોંધાયેલ સર્ટિફિકેટ્સ (Certificates)</span>
-              <span className="font-bold font-mono text-slate-800">{stabilityCertificates.length}</span>
+              <span className="font-bold font-mono text-slate-800">{(stabilityCertificates || []).length}</span>
             </div>
 
             <div className="bg-orange-50/50 p-3 rounded-lg border border-orange-200 mt-2">
