@@ -1,0 +1,6 @@
+{
+  "name": "SMC Hoarding Management System",
+  "description": "Professional Hoarding Management Software for Surat Municipal Corporation – New East (Sarthana) Zone.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

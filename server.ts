@@ -1,0 +1,106 @@
+﻿import dotenv from "dotenv";
+dotenv.config();
+
+import express from "express";
+import cors from "cors"; // 👈 ૧. CORS ઉમેર્યું
+import path from "path";
+import fs from "fs";
+import { Agency, Hoarding, QuarterlyPayment, StabilityCertificate } from "./src/types";
+import pool from "./src/db";
+
+const app = express();
+const PORT = 3000;
+
+// 👈 ૨. CORS અને JSON Middleware
+app.use(cors()); 
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+const DB_FILE_PATH = path.join(process.cwd(), "smc_hoarding_db.json");
+
+// Default DB Structure
+interface TPGridScheme {
+  id: number;
+  tp_scheme_code: string;
+  tp_scheme_name: string;
+  zone_name: string;
+  status: "Active" | "Inactive";
+  display_order: number;
+  created_by: string;
+  created_at: string;
+  updated_by: string;
+  updated_at: string;
+  deleted_at: string;
+}
+
+interface DatabaseSchema {
+  agencies: Agency[];
+  hoardings: Hoarding[];
+  quarterlyPayments: QuarterlyPayment[];
+  stabilityCertificates: StabilityCertificate[];
+  tpSchemes: TPGridScheme[];
+  tpSchemeAudits: any[];
+}
+
+const defaultDB: DatabaseSchema = {
+  agencies: [
+    { id: 1, agency_name: "Tapi Publicity Services", gst_number: "24AACCT1024F1ZA" },
+    { id: 2, agency_name: "Sarthana Outdoor Advertisers", gst_number: "24AABCS5678B2Z2" }
+  ],
+  hoardings: [
+    {
+      id: 1,
+      agency_name: "Tapi Publicity Services",
+      tp_number: "TP-24 (Valak)",
+      final_plot_no: "F.P. 45",
+      hoarding_type: "Single Side Hoarding",
+      financial_year: "2025-26",
+      hoarding_location: "Sarthana Jakatnaka Junction, Near Police Chowki",
+      property_owner_name: "Surat Municipal Corporation",
+      permission_date: "10/04/2025",
+      width: 6.0,
+      height: 3.0,
+      area: 18.0,
+      rate: 1200,
+      annual_license_fee: 21600,
+      quarterly_license_fee: 5400,
+      status: "Active"
+    }
+  ],
+  quarterlyPayments: [],
+  stabilityCertificates: [],
+  tpSchemes: [],
+  tpSchemeAudits: []
+};
+
+function getDB(): DatabaseSchema {
+  try {
+    if (!fs.existsSync(DB_FILE_PATH)) {
+      fs.writeFileSync(DB_FILE_PATH, JSON.stringify(defaultDB, null, 2), "utf8");
+      return defaultDB;
+    }
+    const data = fs.readFileSync(DB_FILE_PATH, "utf8");
+    return JSON.parse(data) as DatabaseSchema;
+  } catch (err) {
+    return defaultDB;
+  }
+}
+
+// ---------------- REST API ENDPOINTS ----------------
+
+// AGENCIES API
+app.get("/api/agencies", (req, res) => {
+  const db = getDB();
+  res.json(db.agencies);
+});
+
+// HOARDINGS API (👈 આ લાઈન ગાયબ હતી જેના લીધે ડેટા નહોતો આવતો)
+app.get("/api/hoardings", (req, res) => {
+  const db = getDB();
+  res.json(db.hoardings || []);
+});
+
+// SERVER LISTEN (👈 સર્વર ચાલુ કરવાનો કોડ)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ SMC Hoarding Backend running on http://localhost:${PORT}`);
+});
