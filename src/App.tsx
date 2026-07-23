@@ -6,6 +6,7 @@ import QuarterlyTab from './components/QuarterlyTab';
 import StabilityTab from './components/StabilityTab';
 import TPSchemeMasterTab from './components/TPSchemeMasterTab';
 import PendingTab from './components/PendingTab';
+import AnnualTab from './components/AnnualTab';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -242,6 +243,17 @@ export default function App() {
             >
               TP સ્કીમ માસ્ટર
             </button>
+
+            <button
+              onClick={() => setActiveTab(7)}
+              className={`px-4 py-2 font-medium text-sm rounded-lg transition-colors whitespace-nowrap ${
+                activeTab === 7
+                  ? 'bg-blue-600 text-white shadow'
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              વાર્ષિક માહિતી
+            </button>
           </nav>
         </div>
       </header>
@@ -321,6 +333,15 @@ export default function App() {
             onEdit={handleEditTPScheme}
             onDelete={handleDeleteTPScheme}
             onRestore={handleRestoreTPScheme}
+          />
+        )}
+
+        {/* Tab 7: Annual Information */}
+        {activeTab === 7 && (
+          <AnnualTab
+            agencies={agencies}
+            hoardings={hoardings}
+            quarterlyPayments={quarterlyPayments}
           />
         )}
       </main>
