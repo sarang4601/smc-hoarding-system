@@ -185,19 +185,19 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
     }
 
     const targetDate = permissionDate || new Date().toISOString().split("T")[0];
-    const matchedScheme = selectedTPSchemeId !== null ? tpSchemes.find((scheme) => scheme.id === selectedTPSchemeId) : matchTPScheme(tpNumber.trim(), tpSchemes);
-
-    if (!matchedScheme) {
-      setFormError("કૃપા કરીને માન્ય TP યોજના પસંદ કરો અથવા વર્તમાન વિગતો સાથે મેળ ખાતા TP સ્કીમ પસંદ કરો. (Please select a valid TP Scheme.)");
-      return;
+    let matchedScheme = null;
+    if (tpNumber.trim()) {
+      matchedScheme = selectedTPSchemeId !== null 
+        ? tpSchemes.find((scheme) => scheme.id === selectedTPSchemeId) 
+        : matchTPScheme(tpNumber.trim(), tpSchemes);
     }
 
     const dataPayload = {
       agency_name: selectedAgency,
-      tp_scheme_id: matchedScheme.id,
-      tp_scheme_code: matchedScheme.tp_scheme_code,
-      tp_scheme_name: matchedScheme.tp_scheme_name,
-      tp_number: matchedScheme.tp_scheme_code,
+      tp_scheme_id: matchedScheme ? matchedScheme.id : undefined,
+      tp_scheme_code: matchedScheme ? matchedScheme.tp_scheme_code : "",
+      tp_scheme_name: matchedScheme ? matchedScheme.tp_scheme_name : "",
+      tp_number: tpNumber.trim() ? (matchedScheme ? matchedScheme.tp_scheme_code : tpNumber.trim()) : "",
       final_plot_no: finalPlotNo.trim(),
       hoarding_type: hoardingType,
       financial_year: financialYear,
