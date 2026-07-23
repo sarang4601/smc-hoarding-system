@@ -6,7 +6,6 @@ import QuarterlyTab from './components/QuarterlyTab';
 import StabilityTab from './components/StabilityTab';
 import TPSchemeMasterTab from './components/TPSchemeMasterTab';
 import PendingTab from './components/PendingTab';
-import AnnualTab from './components/AnnualTab';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -16,7 +15,27 @@ export default function App() {
   const [hoardings, setHoardings] = useState<any[]>([]);
   const [quarterlyPayments, setQuarterlyPayments] = useState<any[]>([]);
   const [stabilityCertificates, setStabilityCertificates] = useState<any[]>([]);
-  const [tpSchemes, setTpSchemes] = useState<any[]>([]);
+  // ✅ નવો કોડ (TP સ્કીમ્સના લિસ્ટ સાથે):
+const [tpSchemes, setTpSchemes] = useState<any[]>([
+  { id: 1, tpNo: "27", name: "ઉત્રાણ-કોસાડ" },
+  { id: 2, tpNo: "33", name: "ઉત્રાણ" },
+  { id: 3, tpNo: "24", name: "મોટા વરાછા-ઉત્રાણ" },
+  { id: 4, tpNo: "18", name: "મોટા વરાછા" },
+  { id: 5, tpNo: "25", name: "મોટા વરાછા" },
+  { id: 6, tpNo: "22", name: "સરથાણા-વાલોદ" },
+  { id: 7, tpNo: "58", name: "વાલોદ" },
+  { id: 8, tpNo: "47", name: "ખોલવડ-ભાડા નો પાર્ટ" },
+  { id: 9, tpNo: "20", name: "નાના વરાછા-કાપોદ્રા" },
+  { id: 10, tpNo: "38", name: "નાના વરાછા" },
+  { id: 11, tpNo: "68", name: "પુણા-સીમાડા" },
+  { id: 12, tpNo: "21", name: "સરથાણા-સીમાડા" },
+  { id: 13, tpNo: "92", name: "સીમાડા-કોસમાડા" },
+  { id: 14, tpNo: "85", name: "સરથાણા-પાસોદરા" },
+  { id: 15, tpNo: "51", name: "કોસમાડા-ખડસદ-પીલોદરા-સીમાડા નો પાર્ટ" },
+  { id: 16, tpNo: "84", name: "કોસાડ-ભરથાણા" },
+  { id: 17, tpNo: "94", name: "મોટા વરાછા" },
+  { id: 18, tpNo: "89", name: "કોસાડ" }
+]);
 
   // 1. Hoarding Handlers
   const handleAddHoarding = async (data: any): Promise<boolean> => {
@@ -243,17 +262,6 @@ export default function App() {
             >
               TP સ્કીમ માસ્ટર
             </button>
-
-            <button
-              onClick={() => setActiveTab(7)}
-              className={`px-4 py-2 font-medium text-sm rounded-lg transition-colors whitespace-nowrap ${
-                activeTab === 7
-                  ? 'bg-blue-600 text-white shadow'
-                  : 'text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              વાર્ષિક માહિતી
-            </button>
           </nav>
         </div>
       </header>
@@ -333,15 +341,6 @@ export default function App() {
             onEdit={handleEditTPScheme}
             onDelete={handleDeleteTPScheme}
             onRestore={handleRestoreTPScheme}
-          />
-        )}
-
-        {/* Tab 7: Annual Information */}
-        {activeTab === 7 && (
-          <AnnualTab
-            agencies={agencies}
-            hoardings={hoardings}
-            quarterlyPayments={quarterlyPayments}
           />
         )}
       </main>
