@@ -1,9 +1,9 @@
-﻿import dotenv from "dotenv";
+﻿import path from 'path';
+import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
 import cors from "cors"; // 👈 ૧. CORS ઉમેર્યું
-import path from "path";
 import fs from "fs";
 import { Agency, Hoarding, QuarterlyPayment, StabilityCertificate } from "./src/types";
 import pool from "./src/db";
@@ -101,6 +101,13 @@ app.get("/api/hoardings", (req, res) => {
 });
 
 // SERVER LISTEN (👈 સર્વર ચાલુ કરવાનો કોડ)
+// Vite Build ની ફાઈલો બતાવવા માટે
+app.use(express.static(path.resolve('dist')));
+
+// કોઈપણ રૂટ પર રિક્વેસ્ટ આવે તો index.html ઓપન થશે
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve('dist', 'index.html'));
+});
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ SMC Hoarding Backend running on http://localhost:${PORT}`);
 });
