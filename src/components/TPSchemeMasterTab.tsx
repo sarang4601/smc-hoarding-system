@@ -3,9 +3,9 @@ import { TPScheme } from "../types";
 import { Plus, Edit2, Trash2, RefreshCcw, Download, FileSpreadsheet, Filter, Search, ShieldCheck } from "lucide-react";
 
 interface TPSchemeMasterTabProps {
-  tpSchemes: TPScheme[];
-  onAdd: (scheme: Omit<TPScheme, "id" | "created_at" | "updated_at" | "deleted_at">) => Promise<boolean>;
-  onEdit: (scheme: TPScheme) => Promise<boolean>;
+  tpSchemes: any[];
+  onAdd: (scheme: any) => Promise<boolean>;
+  onEdit: (scheme: any) => Promise<boolean>;
   onDelete: (id: number) => Promise<boolean>;
   onRestore: (id: number) => Promise<boolean>;
 }
@@ -27,13 +27,18 @@ export default function TPSchemeMasterTab({ tpSchemes, onAdd, onEdit, onDelete, 
         if (statusFilter !== "All" && scheme.status !== statusFilter) return false;
         const term = searchTerm.trim().toLowerCase();
         if (!term) return true;
-        return (
-          scheme.tp_scheme_code.toLowerCase().includes(term) ||
-          scheme.tp_scheme_name.toLowerCase().includes(term) ||
-          scheme.zone_name.toLowerCase().includes(term)
-        );
+
+        const code = (scheme.tp_scheme_code || scheme.tpCode || scheme.code || "").toLowerCase();
+        const name = (scheme.tp_scheme_name || scheme.tpName || scheme.name || "").toLowerCase();
+        const zone = (scheme.zone_name || scheme.zoneName || scheme.zone || "").toLowerCase();
+
+        return code.includes(term) || name.includes(term) || zone.includes(term);
       })
-      .sort((a, b) => a.display_order - b.display_order);
+      .sort((a, b) => {
+        const orderA = a.display_order || a.displayOrder || 0;
+        const orderB = b.display_order || b.displayOrder || 0;
+        return orderA - orderB;
+      });
   }, [tpSchemes, searchTerm, statusFilter]);
 
   const resetForm = () => {
@@ -46,13 +51,13 @@ export default function TPSchemeMasterTab({ tpSchemes, onAdd, onEdit, onDelete, 
     setFormError("");
   };
 
-  const beginEdit = (scheme: TPScheme) => {
+  const beginEdit = (scheme: any) => {
     setEditingId(scheme.id);
-    setTpSchemeCode(scheme.tp_scheme_code);
-    setTpSchemeName(scheme.tp_scheme_name);
-    setZoneName(scheme.zone_name);
-    setStatus(scheme.status);
-    setDisplayOrder(scheme.display_order);
+    setTpSchemeCode(scheme.tp_scheme_code || scheme.tpCode || scheme.code || "");
+    setTpSchemeName(scheme.tp_scheme_name || scheme.tpName || scheme.name || "");
+    setZoneName(scheme.zone_name || scheme.zoneName || scheme.zone || "");
+    setStatus(scheme.status || "Active");
+    setDisplayOrder(scheme.display_order || scheme.displayOrder || 1);
     setFormError("");
   };
 
@@ -66,17 +71,28 @@ export default function TPSchemeMasterTab({ tpSchemes, onAdd, onEdit, onDelete, 
     }
 
     const payload = {
+      // બંને ફોર્મેટમાં સેટ કરો જેથી App.tsx અને આ કમ્પોનન્ટ બંનેમાં સપોર્ટ કરે
       tp_scheme_code: tpSchemeCode.trim(),
+      tpCode: tpSchemeCode.trim(),
+      code: tpSchemeCode.trim(),
+
       tp_scheme_name: tpSchemeName.trim(),
+      tpName: tpSchemeName.trim(),
+      name: tpSchemeName.trim(),
+
       zone_name: zoneName.trim(),
+      zoneName: zoneName.trim(),
+      zone: zoneName.trim(),
+
       status,
       display_order: displayOrder || 1,
+      displayOrder: displayOrder || 1,
       created_by: "system",
       updated_by: "system"
     };
 
     const success = editingId !== null
-      ? await onEdit({ id: editingId, ...payload, created_by: "system", created_at: "", updated_by: "system", updated_at: "", deleted_at: "" })
+      ? await onEdit({ id: editingId, ...payload, created_at: "", updated_at: "", deleted_at: "" })
       : await onAdd(payload);
 
     if (success) {
@@ -132,7 +148,7 @@ export default function TPSchemeMasterTab({ tpSchemes, onAdd, onEdit, onDelete, 
           </div>
 
           <div className="bg-white border border-slate-200 rounded-lg p-4">
-            <h3 className="text-sm font-bold text-slate-800 mb-3">નવੀਂ TP યોજના ઉમેરો / સુધારો</h3>
+            <h3 className="text-sm font-bold text-slate-800 mb-3">નવીં TP યોજના ઉમેરો / સુધારો</h3>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -227,39 +243,58 @@ export default function TPSchemeMasterTab({ tpSchemes, onAdd, onEdit, onDelete, 
               </tr>
             </thead>
             <tbody>
-              {activeSchemes.map((scheme, index) => (
-                <tr key={scheme.id} className={scheme.deleted_at ? "bg-red-50" : "bg-white"}>
-                  <td className="px-3 py-2 font-mono">{index + 1}</td>
-                  <td className="px-3 py-2 font-mono">{scheme.tp_scheme_code}</td>
-                  <td className="px-3 py-2">{scheme.tp_scheme_name}</td>
-                  <td className="px-3 py-2">{scheme.zone_name}</td>
-                  <td className="px-3 py-2">{scheme.status}</td>
-                  <td className="px-3 py-2">{scheme.display_order}</td>
-                  <td className="px-3 py-2 space-x-1">
-                    <button
-                      onClick={() => beginEdit(scheme)}
-                      className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[11px]"
-                    >
-                      <Edit2 className="inline h-3.5 w-3.5" />_Edit
-                    </button>
-                    {scheme.deleted_at ? (
-                      <button
-                        onClick={() => onRestore(scheme.id)}
-                        className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px]"
-                      >
-                        <RefreshCcw className="inline h-3.5 w-3.5" />_Restore
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onDelete(scheme.id)}
-                        className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[11px]"
-                      >
-                        <Trash2 className="inline h-3.5 w-3.5" />_Delete
-                      </button>
-                    )}
+              {activeSchemes.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-4 text-slate-500">
+                    કોઈ TP યોજના મળી નથી.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                activeSchemes.map((scheme, index) => (
+                  <tr key={scheme.id} className={scheme.deleted_at ? "bg-red-50" : "bg-white"}>
+                    <td className="px-3 py-2 font-mono">{index + 1}</td>
+                    <td className="px-3 py-2 font-mono">
+                      {scheme.tp_scheme_code || scheme.tpCode || scheme.code}
+                    </td>
+                    <td className="px-3 py-2">
+                      {scheme.tp_scheme_name || scheme.tpName || scheme.name}
+                    </td>
+                    <td className="px-3 py-2">
+                      {scheme.zone_name || scheme.zoneName || scheme.zone}
+                    </td>
+                    <td className="px-3 py-2">{scheme.status}</td>
+                    <td className="px-3 py-2">
+                      {scheme.display_order || scheme.displayOrder}
+                    </td>
+                    <td className="px-3 py-2 space-x-1">
+                      <button
+                        onClick={() => beginEdit(scheme)}
+                        className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[11px]"
+                      >
+                        <Edit2 className="inline h-3.5 w-3.5 mr-1" />
+                        Edit
+                      </button>
+                      {scheme.deleted_at ? (
+                        <button
+                          onClick={() => onRestore(scheme.id)}
+                          className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px]"
+                        >
+                          <RefreshCcw className="inline h-3.5 w-3.5 mr-1" />
+                          Restore
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onDelete(scheme.id)}
+                          className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[11px]"
+                        >
+                          <Trash2 className="inline h-3.5 w-3.5 mr-1" />
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
