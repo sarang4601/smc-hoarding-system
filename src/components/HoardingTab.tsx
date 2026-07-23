@@ -791,23 +791,23 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
                   onClick={() => toggleSort("tp_number")}
                   className="p-2.5 cursor-pointer select-none hover:bg-slate-200/60"
                 >
-                  ટી.પી. સ્કીમ / TP {sortField === "tp_number" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
+                  TP / પ્લોટ નં. {sortField === "tp_number" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
                 </th>
-                <th className="p-2.5">પ્લોટ / Plot No</th>
                 <th className="p-2.5">પ્રકાર / Type</th>
-                <th className="p-2.5">સ્થળ / Location</th>
-                <th className="p-2.5 text-right">માપ / Size (m)</th>
-                <th className="p-2.5 text-right">એરિયા / Area</th>
-                <th className="p-2.5 text-right">વાર્ષિક ફી / Annual</th>
-                <th className="p-2.5 text-center">સ્થિતિ / Status</th>
-                <th className="p-2.5 text-center no-print-area">એક્શન / Action</th>
+                <th className="p-2.5">લોકેશન / Location</th>
+                <th className="p-2.5">મંજૂરી તારીખ</th>
+                <th className="p-2.5 text-right">સાઈઝ (W x H)</th>
+                <th className="p-2.5 text-right">Area (Sq.m)</th>
+                <th className="p-2.5 text-right">વાર્ષિક ફી (₹)</th>
+                <th className="p-2.5 text-center">સ્ટેટસ</th>
+                <th className="p-2.5 text-center no-print-area">એક્શન</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 text-slate-800">
+            <tbody className="divide-y divide-slate-200">
               {paginatedHoardings.length === 0 ? (
                 <tr>
                   <td colSpan={11} className="p-8 text-center text-slate-400">
-                    કોઈ હોર્ડિંગ રેકોર્ડ મળ્યો નથી. (No hoarding records found)
+                    કોઈ હોર્ડિંગ ડેટા મળ્યો નથી. (No hoardings found.)
                   </td>
                 </tr>
               ) : (
@@ -820,39 +820,52 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
                         isCancelled ? "bg-red-50/40 text-slate-500" : ""
                       }`}
                     >
-                      <td className="p-2.5 text-center font-mono text-slate-500">
+                      <td className="p-2.5 text-center font-mono text-slate-400">
                         {(currentPage - 1) * itemsPerPage + idx + 1}
                       </td>
                       <td className="p-2.5 font-semibold text-slate-900">
                         {h.agency_name}
                         {h.property_owner_name && (
-                          <div className="text-[10px] text-slate-400 font-normal">
+                          <div className="text-[10px] font-normal text-slate-500">
                             માલિક: {h.property_owner_name}
                           </div>
                         )}
                       </td>
-                      <td className="p-2.5 font-mono">{h.tp_number}</td>
-                      <td className="p-2.5 font-mono">{h.final_plot_no}</td>
-                      <td className="p-2.5">{h.hoarding_type}</td>
-                      <td className="p-2.5 max-w-[180px] truncate" title={h.hoarding_location}>
+                      <td className="p-2.5 font-mono">
+                        <span className="font-semibold text-slate-700">{h.tp_number}</span>
+                        <span className="text-slate-400"> / </span>
+                        <span>FP: {h.final_plot_no}</span>
+                      </td>
+                      <td className="p-2.5">
+                        <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
+                          {h.hoarding_type}
+                        </span>
+                      </td>
+                      <td className="p-2.5 max-w-[200px] truncate" title={h.hoarding_location}>
                         {h.hoarding_location}
                       </td>
+                      <td className="p-2.5 font-mono text-slate-600">
+                        {h.permission_date || "-"}
+                      </td>
                       <td className="p-2.5 text-right font-mono">
-                        {h.width} × {h.height}
+                        {h.width} × {h.height} m
                       </td>
                       <td className="p-2.5 text-right font-mono font-semibold">
-                        {h.area} sq.m
+                        {h.area ? h.area.toFixed(2) : (h.width * h.height).toFixed(2)}
                       </td>
-                      <td className="p-2.5 text-right font-mono font-bold text-amber-900">
-                        ₹ {h.annual_license_fee}
+                      <td className="p-2.5 text-right font-mono font-bold text-slate-800">
+                        ₹ {h.annual_license_fee?.toLocaleString("en-IN") || "-"}
                       </td>
                       <td className="p-2.5 text-center">
                         {isCancelled ? (
-                          <span className="inline-block px-2 py-0.5 text-[10px] bg-red-100 text-red-700 font-bold rounded">
-                            રદ કરેલ (Cancelled)
+                          <span
+                            className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 cursor-help"
+                            title={`રદ કર્યા તારીખ: ${h.cancellation_date || "-"}\nકારણ: ${h.cancellation_reason || "-"}`}
+                          >
+                            રદ થયેલ (Cancelled)
                           </span>
                         ) : (
-                          <span className="inline-block px-2 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 font-bold rounded">
+                          <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
                             સક્રિય (Active)
                           </span>
                         )}
@@ -862,39 +875,39 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
                           {isCancelled ? (
                             <button
                               onClick={() => handleRestoreHoarding(h)}
-                              title="ફરી સક્રિય કરો (Restore Active)"
-                              className="p-1 hover:bg-slate-200 text-emerald-700 rounded cursor-pointer transition-colors"
+                              title="ફરી સક્રિય કરો (Restore)"
+                              className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
                             >
-                              <RotateCcw className="h-3.5 w-3.5" />
+                              <RotateCcw className="h-4 w-4" />
                             </button>
                           ) : (
                             <>
                               <button
                                 onClick={() => startEdit(h)}
                                 title="સુધારો (Edit)"
-                                className="p-1 hover:bg-slate-200 text-slate-600 rounded cursor-pointer transition-colors"
+                                className="p-1 text-slate-600 hover:text-orange-600 hover:bg-slate-100 rounded cursor-pointer"
                               >
-                                <Edit2 className="h-3.5 w-3.5" />
+                                <Edit2 className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => openCancellationModal(h.id)}
-                                title="રદ કરો (Cancel)"
-                                className="p-1 hover:bg-red-100 text-red-600 rounded cursor-pointer transition-colors"
+                                title="પરવાનગી રદ કરો (Cancel)"
+                                className="p-1 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
                               >
-                                <X className="h-3.5 w-3.5" />
+                                <X className="h-4 w-4" />
                               </button>
                             </>
                           )}
                           <button
-                            onClick={async () => {
-                              if (window.confirm("શું તમે આ હોર્ડિંગ રેકોર્ડ કાયમ માટે કાઢી નાખવા માંગો છો?")) {
-                                await onDelete(h.id);
+                            onClick={() => {
+                              if (window.confirm("શું તમે ખરેખર આ રજીસ્ટર્ડ હોર્ડિંગ રેકોર્ડ કાયમ માટે કાઢી નાખવા માંગો છો?")) {
+                                onDelete(h.id);
                               }
                             }}
-                            title="કાઢી નાખો (Delete Permanent)"
-                            className="p-1 hover:bg-red-100 text-red-700 rounded cursor-pointer transition-colors"
+                            title="ડિલીટ કરો (Delete)"
+                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded cursor-pointer"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
@@ -906,26 +919,29 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
           </table>
         </div>
 
-        {/* Pagination Control */}
+        {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="p-3 border-t border-slate-200 flex items-center justify-between no-print-area bg-slate-50 text-xs">
+          <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between no-print-area text-xs">
             <span className="text-slate-500">
-              કુલ રેકોર્ડ્સ: {filteredHoardings.length} | પેજ {currentPage} ની {totalPages}
+              કુલ <strong>{filteredHoardings.length}</strong> રેકોર્ડ્સમાંથી <strong>{(currentPage - 1) * itemsPerPage + 1}</strong> થી <strong>{Math.min(currentPage * itemsPerPage, filteredHoardings.length)}</strong> દર્શાવી રહ્યા છે
             </span>
-            <div className="flex items-center gap-1">
+            <div className="flex gap-1">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
+                className="px-2.5 py-1 border border-slate-300 rounded bg-white text-slate-700 disabled:opacity-40 cursor-pointer"
               >
-                પાછળ (Prev)
+                અગાઉનું (Prev)
               </button>
+              <span className="px-3 py-1 font-semibold text-slate-700">
+                {currentPage} / {totalPages}
+              </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
+                className="px-2.5 py-1 border border-slate-300 rounded bg-white text-slate-700 disabled:opacity-40 cursor-pointer"
               >
-                આગળ (Next)
+                આગળનું (Next)
               </button>
             </div>
           </div>
@@ -934,75 +950,70 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
 
       {/* Cancellation Modal */}
       {isCancelModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 no-print-area">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 no-print-area">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 border border-slate-200">
-            <div className="flex justify-between items-center border-b pb-3 mb-4">
-              <h3 className="text-sm font-bold text-red-900">
-                હોર્ડિંગ પરવાનગી રદ કરો / Cancel Hoarding Permission
-              </h3>
-              <button
-                onClick={() => setIsCancelModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <h3 className="text-base font-bold text-red-700 mb-2 flex items-center gap-2">
+              <X className="h-5 w-5 bg-red-100 rounded-full p-0.5" /> હોર્ડિંગ મંજૂરી રદ કરો / Cancel Permission
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              કૃપા કરીને રદ કરવાની સત્તાવાર વિગતો અને કારણ દાખલ કરો.
+            </p>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  રદ કરવાની તારીખ / Cancellation Date <span className="text-red-500">*</span>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  રદ કરવાની તારીખ / Cancellation Date
                 </label>
                 <input
                   type="date"
                   value={formatDateToYYYYMMDD(cancellationDate)}
                   onChange={(e) => setCancellationDate(formatDateToDDMMYYYY(e.target.value))}
-                  className="w-full border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-500 font-mono"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-red-500"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  રદ કરવાનું કારણ / Reason for Cancellation <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  rows={3}
-                  value={cancellationReason}
-                  onChange={(e) => setCancellationReason(e.target.value)}
-                  placeholder="उदा. સ્ટ્રક્ચર દૂર કરેલ છે અથવા પરવાનગી મુદત પૂરી થઈ..."
-                  className="w-full border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-500"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  રદ કરનાર અધિકારી / Cancelled By
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  સત્તાધિકારી / Cancelled By
                 </label>
                 <input
                   type="text"
                   value={cancelledBy}
                   onChange={(e) => setCancelledBy(e.target.value)}
-                  className="w-full border border-slate-300 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-500 bg-slate-50"
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  રદ કરવાનું કારણ / Reason for Cancellation
+                </label>
+                <textarea
+                  rows={3}
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  placeholder="उदा. કરાર મુદત પૂરી થયેલ છે અથવા વહીવટી આદેશ મુજબ..."
+                  className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
                 />
               </div>
 
               {cancelError && (
-                <p className="text-red-600 font-semibold">{cancelError}</p>
+                <p className="text-xs text-red-600 font-semibold">{cancelError}</p>
               )}
             </div>
 
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                onClick={handleSaveCancellation}
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold cursor-pointer transition-colors"
-              >
-                રદ કરો અને સેવ કરો (Confirm Cancellation)
-              </button>
+            <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={() => setIsCancelModalOpen(false)}
-                className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded text-xs font-semibold cursor-pointer transition-colors"
+                className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-semibold cursor-pointer"
               >
-                બંધ કરો (Close)
+                રદ કરો (Close)
+              </button>
+              <button
+                onClick={handleSaveCancellation}
+                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold cursor-pointer"
+              >
+                મંજૂરી રદ કરો (Confirm Cancel)
               </button>
             </div>
           </div>
