@@ -17,24 +17,24 @@ export default function App() {
   const [stabilityCertificates, setStabilityCertificates] = useState<any[]>([]);
   // ✅ નવો કોડ (TP સ્કીમ્સના લિસ્ટ સાથે):
 const [tpSchemes, setTpSchemes] = useState<any[]>([
-  { id: 1, tpNo: "27", name: "ઉત્રાણ-કોસાડ" },
-  { id: 2, tpNo: "33", name: "ઉત્રાણ" },
-  { id: 3, tpNo: "24", name: "મોટા વરાછા-ઉત્રાણ" },
-  { id: 4, tpNo: "18", name: "મોટા વરાછા" },
-  { id: 5, tpNo: "25", name: "મોટા વરાછા" },
-  { id: 6, tpNo: "22", name: "સરથાણા-વાલોદ" },
-  { id: 7, tpNo: "58", name: "વાલોદ" },
-  { id: 8, tpNo: "47", name: "ખોલવડ-ભાડા નો પાર્ટ" },
-  { id: 9, tpNo: "20", name: "નાના વરાછા-કાપોદ્રા" },
-  { id: 10, tpNo: "38", name: "નાના વરાછા" },
-  { id: 11, tpNo: "68", name: "પુણા-સીમાડા" },
-  { id: 12, tpNo: "21", name: "સરથાણા-સીમાડા" },
-  { id: 13, tpNo: "92", name: "સીમાડા-કોસમાડા" },
-  { id: 14, tpNo: "85", name: "સરથાણા-પાસોદરા" },
-  { id: 15, tpNo: "51", name: "કોસમાડા-ખડસદ-પીલોદરા-સીમાડા નો પાર્ટ" },
-  { id: 16, tpNo: "84", name: "કોસાડ-ભરથાણા" },
-  { id: 17, tpNo: "94", name: "મોટા વરાછા" },
-  { id: 18, tpNo: "89", name: "કોસાડ" }
+  { id: 1, tpCode: "TP-27", zoneName: "ઉત્રાણ-કોસાડ", tpName: "ટી.પી. સ્કીમ નં. ૨૭ (ઉત્રાણ-કોસાડ)", status: "Active", displayOrder: 1 },
+  { id: 2, tpCode: "TP-33", zoneName: "ઉત્રાણ", tpName: "ટી.પી. સ્કીમ નં. ૩૩ (ઉત્રાણ)", status: "Active", displayOrder: 2 },
+  { id: 3, tpCode: "TP-24", zoneName: "મોટા વરાછા-ઉત્રાણ", tpName: "ટી.પી. સ્કીમ નં. ૨૪ (મોટા વરાછા-ઉત્રાણ)", status: "Active", displayOrder: 3 },
+  { id: 4, tpCode: "TP-18", zoneName: "મોટા વરાછા", tpName: "ટી.પી. સ્કીમ નં. ૧૮ (મોટા વરાછા)", status: "Active", displayOrder: 4 },
+  { id: 5, tpCode: "TP-25", zoneName: "મોટા વરાછા", tpName: "ટી.પી. સ્કીમ નં. ૨૫ (મોટા વરાછા)", status: "Active", displayOrder: 5 },
+  { id: 6, tpCode: "TP-22", zoneName: "સરથાણા-વાલોદ", tpName: "ટી.પી. સ્કીમ નં. ૨૨ (સરથાણા-વાલોદ)", status: "Active", displayOrder: 6 },
+  { id: 7, tpCode: "TP-58", zoneName: "વાલોદ", tpName: "ટી.પી. સ્કીમ નં. ૫૮ (વાલોદ)", status: "Active", displayOrder: 7 },
+  { id: 8, tpCode: "TP-47", zoneName: "ખોલવડ-ભાડા", tpName: "ટી.પી. સ્કીમ નં. ૪૭ (ખોલવડ-ભાડા નો પાર્ટ)", status: "Active", displayOrder: 8 },
+  { id: 9, tpCode: "TP-20", zoneName: "નાના વરાછા-કાપોદ્રા", tpName: "ટી.પી. સ્કીમ નં. ૨૦ (નાના વરાછા-કાપોદ્રા)", status: "Active", displayOrder: 9 },
+  { id: 10, tpCode: "TP-38", zoneName: "નાના વરાછા", tpName: "ટી.પી. સ્કીમ નં. ૩૮ (નાના વરાછા)", status: "Active", displayOrder: 10 },
+  { id: 11, tpCode: "TP-68", zoneName: "પુણા-સીમાડા", tpName: "ટી.પી. સ્કીમ નં. ૬૮ (પુણા-સીમાડા)", status: "Active", displayOrder: 11 },
+  { id: 12, tpCode: "TP-21", zoneName: "સરથાણા-સીમાડા", tpName: "ટી.પી. સ્કીમ નં. ૨૧ (સરથાણા-સીમાડા)", status: "Active", displayOrder: 12 },
+  { id: 13, tpCode: "TP-92", zoneName: "સીમાડા-કોસમાડા", tpName: "ટી.પી. સ્કીમ નં. ૯૨ (સીમાડા-કોસમાડા)", status: "Active", displayOrder: 13 },
+  { id: 14, tpCode: "TP-85", zoneName: "સરથાણા-પાસોદરા", tpName: "ટી.પી. સ્કીમ નં. ૮૫ (સરથાણા-પાસોદરા)", status: "Active", displayOrder: 14 },
+  { id: 15, tpCode: "TP-51", zoneName: "કોસમાડા-સીમાડા", tpName: "ટી.પી. નં. ૫૧ (કોસમાડા-ખડસદ-પીલોદરા-સીમાડા) નો પાર્ટ", status: "Active", displayOrder: 15 },
+  { id: 16, tpCode: "TP-84", zoneName: "કોસાડ-ભરથાણા", tpName: "ટી.પી. સ્કીમ નં. ૮૪ (કોસાડ-ભરથાણા)", status: "Active", displayOrder: 16 },
+  { id: 17, tpCode: "TP-94", zoneName: "મોટા વરાછા", tpName: "ટી.પી. ૯૪ (મોટા વરાછા)", status: "Active", displayOrder: 17 },
+  { id: 18, tpCode: "TP-89", zoneName: "કોસાડ", tpName: "ટી.પી. સ્કીમ નં. ૮૯ (કોસાડ)", status: "Active", displayOrder: 18 }
 ]);
 
   // 1. Hoarding Handlers
