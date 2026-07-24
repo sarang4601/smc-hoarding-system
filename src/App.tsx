@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardView from './components/DashboardView';
 import AgencyTab from './components/AgencyTab';
 import HoardingTab from './components/HoardingTab';
@@ -7,6 +7,9 @@ import StabilityTab from './components/StabilityTab';
 import TPSchemeMasterTab from './components/TPSchemeMasterTab';
 import PendingTab from './components/PendingTab';
 import AnnualTab from './components/AnnualTab';
+import { buildHoardingRecord } from './persistence';
+
+const apiUrl = (path: string) => `${import.meta.env.VITE_API_BASE_URL || ''}${path}`;
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -39,16 +42,55 @@ export default function App() {
     { id: 18, tpCode: "TP-89", code: "TP-89", tp_scheme_code: "TP-89", zoneName: "કોસાડ", zone: "કોસાડ", zone_name: "કોસાડ", tpName: "ટી.પી. સ્કીમ નં. ૮૯ (કોસાડ)", name: "ટી.પી. સ્કીમ નં. ૮૯ (કોસાડ)", tp_scheme_name: "ટી.પી. સ્કીમ નં. ૮૯ (કોસાડ)", status: "Active", displayOrder: 18, display_order: 18 }
   ]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch(apiUrl('/api/hoardings'));
+        if (response.ok) {
+          const result = await response.json();
+          const items = Array.isArray(result) ? result : result.data || [];
+          setHoardings(items.map((item: any) => buildHoardingRecord(item)));
+        }
+      } catch (error) {
+        console.error('Failed to load hoardings', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
   // 1. Hoarding Handlers
   const handleAddHoarding = async (data: any): Promise<boolean> => {
     try {
-      setHoardings((prev) => [...prev, { ...data, id: Date.now() }]);
+      const response = await fetch(apiUrl('/api/hoardings'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildHoardingRecord(data))
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const result = await response.json();
+      const created = buildHoardingRecord({ ...data, id: result.hoarding_id || Date.now() });
+      setHoardings((prev) => [...prev, created]);
       return true;
     } catch (error) { return false; }
   };
   const handleEditHoarding = async (data: any): Promise<boolean> => {
     try {
-      setHoardings((prev) => prev.map((item) => (item.id === data.id ? data : item)));
+      const response = await fetch(apiUrl(`/api/hoardings/${data.id}`), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildHoardingRecord(data))
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      setHoardings((prev) => prev.map((item) => (item.id === data.id ? buildHoardingRecord(data) : item)));
       return true;
     } catch (error) { return false; }
   };

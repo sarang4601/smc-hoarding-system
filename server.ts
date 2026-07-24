@@ -94,13 +94,51 @@ app.get("/api/agencies", (req, res) => {
   res.json(db.agencies);
 });
 
-// HOARDINGS API (👈 આ લાઈન ગાયબ હતી જેના લીધે ડેટા નહોતો આવતો)
+// HOARDINGS API
 app.get("/api/hoardings", (req, res) => {
   const db = getDB();
   res.json(db.hoardings || []);
 });
 
-// SERVER LISTEN (👈 સર્વર ચાલુ કરવાનો કોડ)
+app.post("/api/hoardings", (req, res) => {
+  const db = getDB();
+  const payload = req.body;
+  const created = {
+    ...payload,
+    id: payload.id ?? Date.now(),
+    status: payload.status ?? "Active",
+    area: payload.area ?? Number((Number(payload.width || 0) * Number(payload.height || 0)).toFixed(4)),
+    annual_license_fee: payload.annual_license_fee ?? 0,
+    quarterly_license_fee: payload.quarterly_license_fee ?? 0
+  };
+
+  db.hoardings = [...db.hoardings, created];
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify(db, null, 2), "utf8");
+  res.status(201).json({ success: true, hoarding_id: created.id });
+});
+
+app.put("/api/hoardings/:id", (req, res) => {
+  const db = getDB();
+  const id = Number(req.params.id);
+  const payload = req.body;
+
+  const index = db.hoardings.findIndex((item) => Number(item.id) === id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: "Hoarding not found" });
+  }
+
+  db.hoardings[index] = {
+    ...db.hoardings[index],
+    ...payload,
+    id,
+    area: payload.area ?? Number((Number(payload.width || db.hoardings[index].width || 0) * Number(payload.height || db.hoardings[index].height || 0)).toFixed(4))
+  };
+
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify(db, null, 2), "utf8");
+  res.json({ success: true, message: "Hoarding updated" });
+});
+
+// SERVER LISTEN
 // Vite Build ની ફાઈલો બતાવવા માટે
 app.use(express.static(path.resolve('dist')));
 
