@@ -144,6 +144,7 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
     setEditingId(null);
   };
 
+  // Single clean handleSave function implementation
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
@@ -275,7 +276,7 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
       cancelled_by: cancelledBy.trim() || "SMC Admin",
       cancellation_financial_year: getFinancialYearFromDate(cancellationDate)
     };
-
+    
     const success = await onEdit(updatedHoarding);
     if (success) {
       setIsCancelModalOpen(false);
@@ -300,7 +301,7 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
     };
     await onEdit(restoredHoarding);
   };
-
+    
   // Filter & Sort
   const filteredHoardings = useMemo(() => {
     return hoardings
@@ -482,7 +483,7 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
                   }}
                     placeholder="TP-18 - ટી.પી. સ્કીમ નં. ૧૮ ..."
                     className="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
-/>
+                />
                 <datalist id="tp-scheme-options">
                   {tpSchemes.map((scheme) => (
                     <option
@@ -716,6 +717,12 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
               </div>
             </div>
 
+            {formError && (
+              <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700 font-semibold">
+                {formError}
+              </div>
+            )}
+
             <div className="flex justify-end gap-2">
               <button
                 type="submit"
@@ -728,291 +735,10 @@ export default function HoardingTab({ hoardings, agencies, tpSchemes, onAdd, onE
                 onClick={resetForm}
                 className="px-4 py-2 bg-slate-300 hover:bg-slate-400 text-slate-800 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
               >
-                <X className="h-4 w-4" /> રદ કરો (Cancel)
+                રદ કરો (Cancel)
               </button>
             </div>
-
-            {formError && (
-              <p className="text-xs text-red-600 font-semibold">{formError}</p>
-            )}
           </form>
-        </div>
-      )}
-
-      {/* Instant Search Bar */}
-      <div className="p-3 border-b border-slate-200 bg-white flex items-center gap-2 no-print-area">
-        <Search className="h-4 w-4 text-slate-400" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-          placeholder="શોધો (એજન્સી નામ, ટી.પી. નંબર, પ્લોટ નંબર, પ્રકાર, વર્ષ, લોકેશન)... (Search)"
-          className="text-xs bg-slate-50 border border-slate-200 rounded px-2 py-1.5 w-full max-w-md focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white"
-        />
-        {searchTerm && (
-          <button
-            onClick={() => setSearchTerm("")}
-            className="text-xs text-slate-400 hover:text-slate-600 font-semibold cursor-pointer"
-          >
-            સાફ કરો (Clear)
-          </button>
-        )}
-      </div>
-
-      {/* Main Data Table Area */}
-      <div className="print-area">
-        
-        {/* Print Header */}
-        <div className="hidden print:block mb-6 text-center border-b pb-4">
-          <h1 className="text-xl font-bold">સુરત મહાનગરપાલિકા - નવા પૂર્વ (સરથાણા) ઝોન</h1>
-          <h2 className="text-sm font-semibold text-slate-600 mt-1">હોર્ડિંગ રજીસ્ટર વિગતો / Hoarding Inventory Register</h2>
-          <p className="text-xs text-slate-500 mt-1">તારીખ: {new Date().toLocaleDateString("gu-IN")} | સમય: {new Date().toLocaleTimeString("gu-IN")}</p>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-slate-100 border-b border-slate-200 font-semibold text-slate-700">
-              <tr>
-                <th className="p-2.5 w-12 text-center">Sr</th>
-                <th
-                  onClick={() => toggleSort("agency_name")}
-                  className="p-2.5 cursor-pointer select-none hover:bg-slate-200/60"
-                >
-                  એજન્સી નામ / Agency {sortField === "agency_name" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
-                </th>
-                <th
-                  onClick={() => toggleSort("tp_number")}
-                  className="p-2.5 cursor-pointer select-none hover:bg-slate-200/60"
-                >
-                  TP / પ્લોટ નં. {sortField === "tp_number" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
-                </th>
-                <th className="p-2.5">પ્રકાર / Type</th>
-                <th className="p-2.5">લોકેશન / Location</th>
-                <th className="p-2.5">મંજૂરી તારીખ</th>
-                <th className="p-2.5 text-right">સાઈઝ (W x H)</th>
-                <th className="p-2.5 text-right">Area (Sq.m)</th>
-                <th className="p-2.5 text-right">વાર્ષિક ફી (₹)</th>
-                <th className="p-2.5 text-center">સ્ટેટસ</th>
-                <th className="p-2.5 text-center no-print-area">એક્શન</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {paginatedHoardings.length === 0 ? (
-                <tr>
-                  <td colSpan={11} className="p-8 text-center text-slate-400">
-                    કોઈ હોર્ડિંગ ડેટા મળ્યો નથી. (No hoardings found.)
-                  </td>
-                </tr>
-              ) : (
-                paginatedHoardings.map((h, idx) => {
-                  const isCancelled = h.status === "Cancelled";
-                  return (
-                    <tr
-                      key={h.id}
-                      className={`hover:bg-slate-50/80 transition-colors ${
-                        isCancelled ? "bg-red-50/40 text-slate-500" : ""
-                      }`}
-                    >
-                      <td className="p-2.5 text-center font-mono text-slate-400">
-                        {(currentPage - 1) * itemsPerPage + idx + 1}
-                      </td>
-                      <td className="p-2.5 font-semibold text-slate-900">
-                        {h.agency_name}
-                        {h.property_owner_name && (
-                          <div className="text-[10px] font-normal text-slate-500">
-                            માલિક: {h.property_owner_name}
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-2.5 font-mono">
-                        <span className="font-semibold text-slate-700">{h.tp_number}</span>
-                        <span className="text-slate-400"> / </span>
-                        <span>FP: {h.final_plot_no}</span>
-                      </td>
-                      <td className="p-2.5">
-                        <span className="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
-                          {h.hoarding_type}
-                        </span>
-                      </td>
-                      <td className="p-2.5 max-w-[200px] truncate" title={h.hoarding_location}>
-                        {h.hoarding_location}
-                      </td>
-                      <td className="p-2.5 font-mono text-slate-600">
-                        {h.permission_date || "-"}
-                      </td>
-                      <td className="p-2.5 text-right font-mono">
-                        {h.width} × {h.height} m
-                      </td>
-                      <td className="p-2.5 text-right font-mono font-semibold">
-                        {h.area ? h.area.toFixed(2) : (h.width * h.height).toFixed(2)}
-                      </td>
-                      <td className="p-2.5 text-right font-mono font-bold text-slate-800">
-                        ₹ {h.annual_license_fee?.toLocaleString("en-IN") || "-"}
-                      </td>
-                      <td className="p-2.5 text-center">
-                        {isCancelled ? (
-                          <span
-                            className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 cursor-help"
-                            title={`રદ કર્યા તારીખ: ${h.cancellation_date || "-"}\nકારણ: ${h.cancellation_reason || "-"}`}
-                          >
-                            રદ થયેલ (Cancelled)
-                          </span>
-                        ) : (
-                          <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                            સક્રિય (Active)
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-2.5 text-center no-print-area">
-                        <div className="flex items-center justify-center gap-1">
-                          {isCancelled ? (
-                            <button
-                              onClick={() => handleRestoreHoarding(h)}
-                              title="ફરી સક્રિય કરો (Restore)"
-                              className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </button>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => startEdit(h)}
-                                title="સુધારો (Edit)"
-                                className="p-1 text-slate-600 hover:text-orange-600 hover:bg-slate-100 rounded cursor-pointer"
-                              >
-                                <Edit2 className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => openCancellationModal(h.id)}
-                                title="પરવાનગી રદ કરો (Cancel)"
-                                className="p-1 text-amber-600 hover:bg-amber-50 rounded cursor-pointer"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </>
-                          )}
-                          <button
-                            onClick={() => {
-                              if (window.confirm("શું તમે ખરેખર આ રજીસ્ટર્ડ હોર્ડિંગ રેકોર્ડ કાયમ માટે કાઢી નાખવા માંગો છો?")) {
-                                onDelete(h.id);
-                              }
-                            }}
-                            title="ડિલીટ કરો (Delete)"
-                            className="p-1 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded cursor-pointer"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination Footer */}
-        {totalPages > 1 && (
-          <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between no-print-area text-xs">
-            <span className="text-slate-500">
-              કુલ <strong>{filteredHoardings.length}</strong> રેકોર્ડ્સમાંથી <strong>{(currentPage - 1) * itemsPerPage + 1}</strong> થી <strong>{Math.min(currentPage * itemsPerPage, filteredHoardings.length)}</strong> દર્શાવી રહ્યા છે
-            </span>
-            <div className="flex gap-1">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="px-2.5 py-1 border border-slate-300 rounded bg-white text-slate-700 disabled:opacity-40 cursor-pointer"
-              >
-                અગાઉનું (Prev)
-              </button>
-              <span className="px-3 py-1 font-semibold text-slate-700">
-                {currentPage} / {totalPages}
-              </span>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="px-2.5 py-1 border border-slate-300 rounded bg-white text-slate-700 disabled:opacity-40 cursor-pointer"
-              >
-                આગળનું (Next)
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Cancellation Modal */}
-      {isCancelModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 no-print-area">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-5 border border-slate-200">
-            <h3 className="text-base font-bold text-red-700 mb-2 flex items-center gap-2">
-              <X className="h-5 w-5 bg-red-100 rounded-full p-0.5" /> હોર્ડિંગ મંજૂરી રદ કરો / Cancel Permission
-            </h3>
-            <p className="text-xs text-slate-500 mb-4">
-              કૃપા કરીને રદ કરવાની સત્તાવાર વિગતો અને કારણ દાખલ કરો.
-            </p>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  રદ કરવાની તારીખ / Cancellation Date
-                </label>
-                <input
-                  type="date"
-                  value={formatDateToYYYYMMDD(cancellationDate)}
-                  onChange={(e) => setCancellationDate(formatDateToDDMMYYYY(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-red-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  સત્તાધિકારી / Cancelled By
-                </label>
-                <input
-                  type="text"
-                  value={cancelledBy}
-                  onChange={(e) => setCancelledBy(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  રદ કરવાનું કારણ / Reason for Cancellation
-                </label>
-                <textarea
-                  rows={3}
-                  value={cancellationReason}
-                  onChange={(e) => setCancellationReason(e.target.value)}
-                  placeholder="उदा. કરાર મુદત પૂરી થયેલ છે અથવા વહીવટી આદેશ મુજબ..."
-                  className="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-red-500"
-                />
-              </div>
-
-              {cancelError && (
-                <p className="text-xs text-red-600 font-semibold">{cancelError}</p>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-2 mt-5">
-              <button
-                onClick={() => setIsCancelModalOpen(false)}
-                className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-semibold cursor-pointer"
-              >
-                રદ કરો (Close)
-              </button>
-              <button
-                onClick={handleSaveCancellation}
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-semibold cursor-pointer"
-              >
-                મંજૂરી રદ કરો (Confirm Cancel)
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>
